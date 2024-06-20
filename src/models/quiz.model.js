@@ -20,7 +20,11 @@ const quizSchema = new mongoose.Schema({
   numberOfQuestions: {
     type: Number,
     required: true
-  }
+  },
+  questions:{
+    type:[mongoose.Schema.Types.ObjectId],
+    ref:'Question'
+  },
 });
 
 export const Quiz = mongoose.model('Quiz', quizSchema);
