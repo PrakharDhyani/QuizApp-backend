@@ -31,10 +31,12 @@ const QuestionSchema = new Schema({
     of: String,
     required: true
   },
-  // timer: {
-  //   type: Number,
-  //   required: true
-  // },
+  timer: {
+    type: Number,
+    required: true,
+    default:10
+  },
+  
 });
 
 export const Question = mongoose.model('Question', QuestionSchema);

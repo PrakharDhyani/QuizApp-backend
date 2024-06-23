@@ -48,7 +48,7 @@ export const getAllQuizzes = async (req, res) => {
 
 export const getQuizById = async (req, res) => {
   try {
-    const quiz = await Quiz.findById(req.params.quizId);
+    const quiz = await Quiz.findById(req.params.quizId).populate('questions');
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found' });
     }
