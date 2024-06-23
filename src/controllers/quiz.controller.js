@@ -1,15 +1,41 @@
-import { Quiz } from '../models/quiz.model.js';
-import { Question } from '../models/question.model.js';
+import {Quiz} from "../models/quiz.model.js"
+import {Question} from "../models/question.model.js"
+
 
 export const createQuiz = async (req, res) => {
-  console.log(req.body);
+  console.log("Received data:", req.body); // Log received data
+
+  const { title, thumbnail, numQuestions, questions } = req.body;
+
+  if (!title || !thumbnail || !numQuestions || !questions) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
   try {
-    const quiz = await Quiz.create(req.body);
+    const quiz = new Quiz({ title, thumbnail, numberOfQuestions: numQuestions });
+    await quiz.save();
+
+    const questionPromises = questions.map(question => {
+      const backgroundAnimations = new Map(Object.entries(question.backgroundAnimations));
+
+      return new Question({
+        quizId: quiz._id,
+        questionText: question.questionText,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        questionPhotoUrl: question.questionPhotoUrl,
+        answerPhotoUrl: question.answerPhotoUrl,
+        backgroundAnimations,
+      }).save();
+    });
+
+    await Promise.all(questionPromises);
+
     res.status(201).json({ quiz });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 export const getAllQuizzes = async (req, res) => {
   try {

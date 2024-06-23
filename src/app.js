@@ -3,7 +3,8 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import { CORS_ORIGIN } from "./constant.js";
 import quizRoutes  from "./routes/quiz.routes.js";
-import { router as questionRoutes } from "./routes/question.routes.js";
+import  questionRoutes  from "./routes/question.routes.js";
+import cloudinaryUrlRoutes from "./routes/cloudinaryurls.routes.js"
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser())
   
 app.use('/quizzes', quizRoutes);
 app.use('/questions', questionRoutes);
+app.use('/cloudinaryurls',cloudinaryUrlRoutes)
 
 
 export {app} 

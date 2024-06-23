@@ -26,8 +26,9 @@ const QuestionSchema = new Schema({
     type: String,
     required: true
   }, 
-  backgroundAnimation: {
-    type: String,
+  backgroundAnimations: {
+    type: Map,
+    of: String,
     required: true
   },
   // timer: {
