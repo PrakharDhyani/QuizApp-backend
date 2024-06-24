@@ -1,6 +1,5 @@
-import {Quiz} from "../models/quiz.model.js"
-import {Question} from "../models/question.model.js"
-
+import { Quiz } from "../models/quiz.model.js";
+import { Question } from "../models/question.model.js";
 
 export const createQuiz = async (req, res) => {
   console.log("Received data:", req.body); // Log received data
@@ -10,28 +9,39 @@ export const createQuiz = async (req, res) => {
   if (!title || !thumbnail || !numQuestions || !questions) {
     return res.status(400).json({ message: "Missing required fields" });
   }
+  
   try {
+    // Create a new Quiz instance
     const quiz = new Quiz({ title, thumbnail, numberOfQuestions: numQuestions });
     await quiz.save();
 
-    const questionPromises = questions.map(question => {
-      const backgroundAnimations = new Map(Object.entries(question.backgroundAnimations));
+    // Create and save each Question, storing their IDs in an array
+    const questionIds = await Promise.all(
+      questions.map(async question => {
+        const backgroundAnimations = new Map(Object.entries(question.backgroundAnimations));
 
-      return new Question({
-        quizId: quiz._id,
-        questionText: question.questionText,
-        options: question.options,
-        correctAnswer: question.correctAnswer,
-        questionPhotoUrl: question.questionPhotoUrl,
-        answerPhotoUrl: question.answerPhotoUrl,
-        backgroundAnimations,
-      }).save();
-    });
+        const newQuestion = new Question({
+          quizId: quiz._id,
+          questionText: question.questionText,
+          options: question.options,
+          correctAnswer: question.correctAnswer,
+          questionPhotoUrl: question.questionPhotoUrl,
+          answerPhotoUrl: question.answerPhotoUrl,
+          backgroundAnimations,
+        });
 
-    await Promise.all(questionPromises);
+        await newQuestion.save();
+        return newQuestion._id; // Return the saved question ID
+      })
+    );
+
+    // Update the Quiz with the array of question IDs
+    quiz.questions = questionIds;
+    await quiz.save();
 
     res.status(201).json({ quiz });
   } catch (error) {
+    console.error('Error creating quiz:', error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -58,6 +68,7 @@ export const getQuizById = async (req, res) => {
   }
 };
 
+
 export const updateQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.findByIdAndUpdate(req.params.quizId, req.body, { new: true });
@@ -69,6 +80,7 @@ export const updateQuiz = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const deleteQuiz = async (req, res) => {
   try {
@@ -86,3 +98,4 @@ export const deleteQuiz = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
